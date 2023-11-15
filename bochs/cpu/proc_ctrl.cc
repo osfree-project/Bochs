@@ -203,12 +203,14 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::HLT(bxInstruction_c *i)
      Bit8u val82 = read_virtual_byte(BX_SEG_REG_CS, IP+1);
      if (val81==(Bit8u)~val82) 
 	 {
-		 BX_INFO(("WARNING: SVC instruction! %02x", val81));
+		BX_INFO(("WARNING: SVC instruction! %02x", val81));
+		
+		bx_dbg_info_registers_command(BX_INFO_GENERAL_PURPOSE_REGS);
 
-    Bit16u new_IP = IP + 2;
-    branch_near16(new_IP);
-    BX_INSTR_UCNEAR_BRANCH(BX_CPU_ID, BX_INSTR_IS_JMP, PREV_RIP, new_IP);
-    BX_LINK_TRACE(i);
+		Bit16u new_IP = IP + 2;
+		branch_near16(new_IP);
+		BX_INSTR_UCNEAR_BRANCH(BX_CPU_ID, BX_INSTR_IS_JMP, PREV_RIP, new_IP);
+		BX_LINK_TRACE(i);
 	}
   }
 
@@ -236,6 +238,42 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::HLT(bxInstruction_c *i)
   BX_NEXT_TRACE(i);
   //BX_NEXT_INSTR(i);
 }
+
+
+
+void BX_CPU_C::handleFpuMmxModeChange(void)
+{
+  if (BX_CPU_THIS_PTR cr0.get_EM() || BX_CPU_THIS_PTR cr0.get_TS())
+    BX_CPU_THIS_PTR fpu_mmx_ok = 0;
+  else
+    BX_CPU_THIS_PTR fpu_mmx_ok = 1;
+
+  updateFetchModeMask(); /* FPU_MMX_OK changed */
+}
+
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::BxNoFPU(bxInstruction_c *i)
+{
+  if (BX_CPU_THIS_PTR cr0.get_EM() || BX_CPU_THIS_PTR cr0.get_TS())
+    exception(BX_NM_EXCEPTION, 0);
+
+  BX_ASSERT(0);
+
+  BX_NEXT_TRACE(i); // keep compiler happy
+}
+
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::BxNoMMX(bxInstruction_c *i)
+{
+  if(BX_CPU_THIS_PTR cr0.get_EM())
+    exception(BX_UD_EXCEPTION, 0);
+
+  if(BX_CPU_THIS_PTR cr0.get_TS())
+    exception(BX_NM_EXCEPTION, 0);
+
+  BX_ASSERT(0);
+
+  BX_NEXT_TRACE(i); // keep compiler happy
+}
+
 
 /* 0F 08 */
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::INVD(bxInstruction_c *i)
@@ -560,6 +598,7 @@ void BX_CPU_C::handleCpuContextChange(void)
 
   handleCpuModeChange();
 
+  handleFpuMmxModeChange();
 #if BX_CPU_LEVEL >= 6
   handleSseModeChange();
 #if BX_SUPPORT_AVX
