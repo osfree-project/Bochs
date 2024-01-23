@@ -27,6 +27,7 @@ set echo
             --disable-readline \
             --without-x \
 			--enable-debugger \
+			--enable-doskrnl \
             --with-win32 --with-rfb --with-nogui
 
 unset echo

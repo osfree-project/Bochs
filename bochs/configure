@@ -934,6 +934,7 @@ READLINE_LIB
 IODEBUG_OBJS
 GDBSTUB_VAR
 DEBUGGER_VAR
+DOSKRNL_VAR
 NO_FLEX_YACC
 YACC
 FLEX
@@ -1053,6 +1054,7 @@ enable_trace_linking
 enable_configurable_msrs
 enable_show_ips
 enable_cpp
+enable_doskrnl
 enable_debugger
 enable_debugger_gui
 enable_gdb_stub
@@ -1780,6 +1782,7 @@ Optional Features:
                           level >= 5)
   --enable-show-ips       show IPS in Bochs status bar / log file (yes)
   --enable-cpp            use .cpp as C++ suffix (no)
+  --enable-doskrnl        compile in support for Bochs DOSKRNL (no)
   --enable-debugger       compile in support for Bochs internal debugger (no)
   --enable-debugger-gui   compile in support for Bochs internal debugger GUI
                           (yes, if debugger is on)

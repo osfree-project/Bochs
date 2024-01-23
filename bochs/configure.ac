@@ -786,6 +786,41 @@ if test "$enable_cpp" = yes; then
 fi
 
 
+AC_MSG_CHECKING(for Bochs DOSKRNL support)
+AC_ARG_ENABLE(doskrnl,
+  AS_HELP_STRING([--enable-doskrnl], [compile in support for Bochs DOSKRNL (no)]),
+  [if test "$enableval" = yes; then
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(DOSKRNL, 1)
+    DOSKRNL_VAR=''
+    NO_FLEX_YACC=''
+    AC_PATH_PROG(FLEX, flex, not_found)
+    AC_PATH_PROG(YACC, yacc, not_found)
+    AC_MSG_CHECKING(whether to generate parser / lexer files)
+    if test "$FLEX" = not_found -o "$YACC" = not_found -o "$MSVC_TARGET" != 0; then
+      NO_FLEX_YACC='#'
+      AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+    fi
+    AC_SUBST(NO_FLEX_YACC)
+    doskrnl=1
+   else
+    AC_MSG_RESULT(no)
+    AC_DEFINE(DOSKRNL, 0)
+    DOSKRNL_VAR=''
+    doskrnl=0
+   fi
+   ],
+  [
+    AC_MSG_RESULT(no)
+    AC_DEFINE(DOSKRNL, 0)
+    DOKRNL=''
+    doskrnl=0
+    ]
+  )
+AC_SUBST(DOSKRNL_VAR)
+
 
 AC_MSG_CHECKING(for Bochs internal debugger support)
 AC_ARG_ENABLE(debugger,
