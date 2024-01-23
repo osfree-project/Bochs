@@ -198,6 +198,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::HLT(bxInstruction_c *i)
     BX_INFO(("WARNING: HLT instruction with IF=0!"));
   }
 
+#ifdef DOSKRNL
   {  bx_address eaddr = BX_CPU_RESOLVE_ADDR(i);
      Bit8u val81 = read_virtual_byte(BX_SEG_REG_CS, IP);
      Bit8u val82 = read_virtual_byte(BX_SEG_REG_CS, IP+1);
@@ -207,12 +208,15 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::HLT(bxInstruction_c *i)
 		
 		bx_dbg_info_registers_command(BX_INFO_GENERAL_PURPOSE_REGS);
 
+		// Handle SVC here
+
 		Bit16u new_IP = IP + 2;
 		branch_near16(new_IP);
 		BX_INSTR_UCNEAR_BRANCH(BX_CPU_ID, BX_INSTR_IS_JMP, PREV_RIP, new_IP);
 		BX_LINK_TRACE(i);
 	}
   }
+#endif
 
 #if BX_SUPPORT_VMX
   if (BX_CPU_THIS_PTR in_vmx_guest) {
